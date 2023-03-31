@@ -1,10 +1,15 @@
-
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
+
+# Api router
+router = routers.DefaultRouter()
 
 urlpatterns = [
+    # Admin routes
     path('admin/', admin.site.urls),
-    path('revista/', include('revista.api.urls_revista')),
-    path('account/', include('user_app.api.url_user')),
-    #path('api-auth/', include('rest_framework.urls')),
+
+    # Api routes
+    path('api/', include('authenticacion.urls')),
+    path('api/', include(router.urls)),
 ]
