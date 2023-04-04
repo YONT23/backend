@@ -67,7 +67,7 @@ class Persons(BaseModel):
         max_length=255, unique=True, blank=True, null=True)
     address = models.CharField(max_length=50, blank=True, null=True)
     nationality = models.CharField(max_length=30, blank=True, null=True)
-    date_of_birth = models.CharField(max_length=30, blank=True, null=True)
+    date_of_birth = models.DateField(verbose_name='Fecha de nacimiento')
     phone = models.CharField(max_length=20, blank=True, null=True)
     status = models.BooleanField(default=True)
     document_type = models.ForeignKey(

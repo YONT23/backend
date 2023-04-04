@@ -5,47 +5,45 @@ from rest_framework import  serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.serializers import CharField, ModelSerializer, SlugField
 
-#from .api.serializer.serializers import RolesSerializers
+from .models import CustomUser
+from .api.serializer.serializers import RolesSerializers
 from .api.serializer.customValidators import UserValidatorBefore
 User = get_user_model()
 
-#class UserChangePassword(ModelSerializer):
-#    password = CharField()
-#
-#    class Meta:
-#        model = User
-#        fields = ('password', 'id')
-#        validators = [UserValidatorBefore()]
+class UserChangePassword(ModelSerializer):
+    password = CharField()
 
-#class UserSerializersSimple(ModelSerializer):
-#    class Meta:
-#        model = User
-#        fields = ('username', 'email')
+    class Meta:
+        model = CustomUser
+        fields = ('password', 'id')
+        validators = [UserValidatorBefore()]
 
-#class CreateUserSerializers(ModelSerializer):
-#
-#    username = SlugField(
-#        max_length=100,
-#        validators=[UniqueValidator(queryset=User.objects.all())]
-#    )
-#
-#    class Meta:
-#        model = User
-#        fields = ('username', 'password', 'email')
-#        validators = [UserValidatorBefore()]
-#
-#class UserSerializersSimpleRegister(ModelSerializer):
-#    username = SlugField(
-#        max_length=100,
-#        validators=[UniqueValidator(queryset=User.objects.all())]
-#    )
-#
-#    class Meta:
-#        model = User
-#        fields = ('username', 'password', 'email', 'first_name', 'last_name')
-#        validators = [UserValidatorBefore()]
+class CreateUserSerializers(ModelSerializer):
+
+    username = SlugField(
+        max_length=100,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'password', 'email')
+        validators = [UserValidatorBefore()]
+
+class UserSerializersSimpleRegister(ModelSerializer):
+    username = SlugField(
+        max_length=100,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'password', 'email', 'first_name', 'last_name')
+        validators = [UserValidatorBefore()]
 
 class UserSerializer(serializers.ModelSerializer):
+    roles = RolesSerializers(many=True, read_only=True)
+    
     email = serializers.EmailField(
         required=True)
     username = serializers.CharField(
@@ -55,6 +53,15 @@ class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(
         required=False, allow_null=True) 
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        try:
+            if (len(representation['roles'])):
+                representation['roles'][0] = representation['roles'][0]['id']
+            return representation
+        except Exception as e:
+            return representation
+        
     class Meta:
         model = get_user_model()
         fields = ('email', 'username', 'password', 'avatar') 

@@ -21,3 +21,5 @@ class CustomUserAdmin(UserAdmin):
     pass
 
 admin.site.unregister(Group)  
+
+

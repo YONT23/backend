@@ -1,16 +1,13 @@
-from ...models import (Document_types, Genders, Persons, Resources, Roles, CustomUser, User_roles, Resources_roles     
-                        , Resources_roles, Roles)
+from ...models import (Document_types, Genders, Persons, Resources, Roles, CustomUser, 
+                       User_roles, Resources_roles, Resources_roles, Roles)
 from rest_framework.serializers import ModelSerializer, CharField, ValidationError, Serializer, IntegerField
-from .user_serializer import UserSerializersSimple
-
-#from ....helps.menuResources import menuResources
-#from ....helps.create_response import create_response
 
 from ...mudules import create_response, menuResources
 
-
-
-
+class UserSerializersSimple(ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email')
 
 #GENDER
 class GenderSerializers(ModelSerializer):
@@ -43,12 +40,6 @@ class PersonsSimpleSerializers(ModelSerializer):
         model = Persons
         fields = ('name', 'surname', 'document_type',
                   'phone', 'status', 'date_of_birth')
-        
-#USER
-class UserSerilizers(ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = '__all__'
         
 #ROLES
 class RolesSerializers(ModelSerializer):
