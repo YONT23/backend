@@ -1,9 +1,19 @@
 
 from pathlib import Path
 from datetime import timedelta
+import environ
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+#BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -17,10 +27,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+#### ORIGIN
+
 CORS_ORIGIN_WHITELIST = (
     "http://localhost:4200",
 )
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
@@ -36,19 +47,22 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'drf_yasg'
+    'drf_yasg',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
     'django_rest_passwordreset',
+    "whitenoise.runserver_nostatic",
     
     'authenticacion',
-    'publication',
+    'apps.publication.apps.PublicationConfig',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -94,6 +108,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# Usar bcrypt para el hashing de contraseñas
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -127,34 +145,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#### REST_FRAMEWORK
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.1/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
-
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-#REST_FRAMEWORK = {
-#    'DEFAULT_PERMISSION_CLASSES': [
-#        'rest_framework.permissions.IsAuthenticated',
-#    ]
-#}
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
@@ -162,6 +154,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+###   SIMPLE JWT
 
 SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS' : True,
@@ -194,3 +188,41 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(hours=10),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+### CACHES
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.1/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = 'static/'
+
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+

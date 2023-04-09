@@ -14,6 +14,14 @@ from .serializers import UserSerializer, CreateUserSerializers, UserChangePasswo
 from .models import CustomUser
 from .mudules import create_response
 
+from authenticacion.api.serializer.auth_serializer import LoginSerializers
+from authenticacion.api.serializer.serializers import ResourcesSerializers
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from helps.flatList import flatList
+
+from django.http import JsonResponse
+import bcrypt, logging
+
 
 class UsersViewPublic(RetrieveAPIView):
     queryset = CustomUser.objects.all()
@@ -103,8 +111,9 @@ class UserChangePasswordView(UpdateAPIView):
 
     def perform_update(self, serializer):
         if 'original-password' in self.request.data:
-            password = make_password(self.request.data['password'])
-            serializer.save(password=password)
+            password = self.request.data['password'].encode('utf-8')
+            hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
+            serializer.save(password=hashed_password.decode('utf-8'))
         else:
             serializer.save()
 
@@ -142,21 +151,61 @@ class UserChangePasswordView(UpdateAPIView):
                 status.HTTP_400_BAD_REQUEST, 'Not Found', e.args)
             return Response(response, status=code)
 
-class LoginView(APIView):
-    def post(self, request):
-        # Recuperamos las credenciales y autenticamos al usuario
-        email = request.data.get('email', None)
-        password = request.data.get('password', None)
-        user = authenticate(email=email, password=password)
 
-        # Si es correcto añadimos a la request la información de sesión
-        if user:
-            login(request, user)
-            return Response(UserSerializer(user).data,status=status.HTTP_200_OK)
+#class LoginView(APIView):
+#    def post(self, request):
+#        # Recuperamos las credenciales y autenticamos al usuario
+#        email = request.data.get('email', None)
+#        password = request.data.get('password', None)
+#        user = authenticate(email=email, password=password)
+#
+#        # Si es correcto añadimos a la request la información de sesión
+#        if user:
+#            login(request, user)
+#            return Response(UserSerializer(user).data,status=status.HTTP_200_OK)
+#
+#        # Si no es correcto devolvemos un error en la petición
+#        return Response(
+#            status=status.HTTP_404_NOT_FOUND)
 
-        # Si no es correcto devolvemos un error en la petición
-        return Response(
-            status=status.HTTP_404_NOT_FOUND)
+class AuthLogin(APIView):
+
+    def get_tokens_for_user(self, user):
+        refresh = RefreshToken.for_user(user)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+
+    def post(self, request, *args, **kwargs):
+        data = {}
+        if 'email' in request.data:
+            data['username'] = request.data['email']
+            data['password'] = request.data['password']
+        else:
+            data = request.data
+
+        serializers = LoginSerializers(
+            data=data, context={'request': self.request})
+        if not serializers.is_valid():
+            response, code = create_response(
+                status.HTTP_400_BAD_REQUEST, 'Error', serializers.errors)
+            return Response(response, status=code)
+
+        login(request, serializers.validated_data)
+        token = self.get_tokens_for_user(serializers.validated_data)
+
+        resources = flatList([e.resources.prefetch_related(
+            'resources') for e in serializers.validated_data.roles.all()])
+    
+        menu = ResourcesSerializers(set(resources), many=True)
+
+        request.session['refresh-token'] = token['refresh']
+        response, code = create_response(
+            status.HTTP_200_OK, 'Login Success', {'token': token, 'user': {'name': serializers.validated_data.username,
+                                                                           'id': serializers.validated_data.id},
+                                                  'menu': menu.data})
+        return Response(response, status=code)
 
 class LogoutView(APIView):
     def post(self, request):
@@ -179,5 +228,4 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
-    # Aquí deberíamos mandar un correo al cliente...
     print(f"\nRecupera la contraseña del correo '{reset_password_token.user.email}' usando el token '{reset_password_token.key}' desde la API http://localhost:8000/api/auth/reset/confirm/.")

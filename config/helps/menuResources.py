@@ -1,4 +1,3 @@
-
 def menuResources(data: list, list_data: list, model: any, last_id: int, id_padre=0):
     id_last_resources = last_id
 

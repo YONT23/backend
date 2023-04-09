@@ -3,13 +3,6 @@ from rest_framework.utils.serializer_helpers import ReturnDict
 
 
 def create_response(code, message, data, request_id='',):
-    """
-    Function to create a response to be sent back via the API
-    :param request_id:Id fo the request
-    :param code:Error Code to be used
-    :param message:Message to be sent via the APi
-    :return:Dict with the above given params
-    """
 
     try:
         req = str(request_id)

@@ -1,15 +1,21 @@
+import os
 import json
 import logging
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.http import HttpResponse
-from helps.create_response import create_response
-from django.utils.deprecation import MiddlewareMixin
-from rest_framework_simplejwt.exceptions import InvalidToken, AuthenticationFailed, TokenBackendError, TokenError, exceptions
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.tokens import RefreshToken
-from pathlib import Path
-import os
 import environ
+
+from pathlib import Path
+
+from django.http import HttpResponse
+from django.utils.deprecation import MiddlewareMixin
+from django.contrib.auth import get_user_model
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import InvalidToken, AuthenticationFailed, TokenBackendError, TokenError, exceptions
+
+from helps.create_response import create_response
+
+from authenticacion.models import CustomUser
 
 env = environ.Env(
     DEBUG=(bool, False)
@@ -60,9 +66,9 @@ class CustomMiddleware(MiddlewareMixin):
                     user = None
 
                 if ('user' in request.session):
-                    user = User.objects.get(id=request.session['user'])
+                    user = CustomUser.objects.get(id=request.session['user'])
                 else:
-                    user = User.objects.get(id=token['user_id'])
+                    user = CustomUser.objects.get(id=token['user_id'])
 
                 if not tokenUser.is_authenticated:
                     response, code = create_response(
