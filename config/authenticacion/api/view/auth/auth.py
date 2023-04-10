@@ -1,7 +1,7 @@
-from rest_framework.views import APIView
-from ...serializer.auth_serializer import LoginSerializers, RegisterSerializers
-from ...serializer.serializers import ResourcesSerializers
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+#from rest_framework.views import APIView
+#from ...serializer.auth_serializer import LoginSerializers, RegisterSerializers
+#from ...serializer.serializers import ResourcesSerializers
+#from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 #from rest_framework.response import Response
 #from django.contrib.auth.hashers import make_password
 #from django.contrib.auth import logout

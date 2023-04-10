@@ -6,6 +6,7 @@ from django_rest_passwordreset.signals import reset_password_token_created
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView
 
 from .serializers import UserSerializer, CreateUserSerializers, UserChangePassword
@@ -208,12 +209,29 @@ class AuthLogin(APIView):
         return Response(response, status=code)
 
 class LogoutView(APIView):
-    def post(self, request):
-        # Borramos de la request la información de sesión
-        logout(request)
-
-        # Devolvemos la respuesta al cliente
-        return Response(status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        try:
+            jwt_token = request.session.get('refresh-token', None)
+            resp = HttpResponse('content')
+            resp.cookies.clear()
+            resp.flush()
+            token = RefreshToken(jwt_token)
+            token.blacklist()
+            logout(request)
+            request.session.clear()
+            resp.flush()
+            request.session.flush()
+            response, code = create_response(
+                status.HTTP_200_OK, 'Logout Success', 'Ok')
+            return Response(response, code)
+        except TokenError as TkError:
+            response, code = create_response(
+                status.HTTP_400_BAD_REQUEST, 'Error', f'{TkError}')
+            return Response(response, code)
+        except Exception as e:
+            response, code = create_response(
+                status.HTTP_400_BAD_REQUEST, 'Error', e)
+            return Response(e.args, code)
 
 class AuthRegister(APIView):
     serializer_class = RegisterSerializers
