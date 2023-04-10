@@ -14,7 +14,7 @@ from .serializers import UserSerializer, CreateUserSerializers, UserChangePasswo
 from .models import CustomUser
 from .mudules import create_response
 
-from authenticacion.api.serializer.auth_serializer import LoginSerializers
+from authenticacion.api.serializer.auth_serializer import LoginSerializers, RegisterSerializers
 from authenticacion.api.serializer.serializers import ResourcesSerializers
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from helps.flatList import flatList
@@ -215,8 +215,21 @@ class LogoutView(APIView):
         # Devolvemos la respuesta al cliente
         return Response(status=status.HTTP_200_OK)
 
-class SignupView(generics.CreateAPIView):
-    serializer_class = UserSerializer
+class AuthRegister(APIView):
+    serializer_class = RegisterSerializers
+
+    def post(self, request, *args, **kwargs):
+        registerUser = RegisterSerializers(data=request.data)
+        if registerUser.is_valid():
+            password = make_password(
+                registerUser.validated_data['password'])
+            registerUser.save(password=password)
+            response, code = create_response(
+                status.HTTP_200_OK, 'User Register', 'Registro Exitosos')
+            return Response(response, status=code)
+        response, code = create_response(
+            status.HTTP_400_BAD_REQUEST, 'Error', registerUser.errors)
+        return Response(response, status=code)
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer

@@ -1,11 +1,11 @@
 from django.urls import path, include
-from .views import (AuthLogin, LogoutView, SignupView, ProfileView, 
+from .views import (AuthLogin, LogoutView, AuthRegister, ProfileView, 
                     UsersViewPublic, UserCreateView,  UserUpdateView, UserChangePasswordView)
 urlpatterns = [
     # Auth views
     path('auth/login/', AuthLogin.as_view(), name='auth_login'),
     path('auth/logout/', LogoutView.as_view(), name='auth_logout'),
-    path('auth/signup/', SignupView.as_view(), name='auth_signup'),
+    path('auth/register/', AuthRegister.as_view(), name='auth_signup'),
     
     path('auth/reset/', include('django_rest_passwordreset.urls',
                  namespace='password_reset')),

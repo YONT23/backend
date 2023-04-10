@@ -43,7 +43,6 @@ class UserSerializersSimpleRegister(ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     roles = RolesSerializers(many=True, read_only=True)
-    
     email = serializers.EmailField(
         required=True)
     username = serializers.CharField(
