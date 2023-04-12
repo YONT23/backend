@@ -1,5 +1,6 @@
 from ...models import (Document_types, Genders, Persons, Resources, Roles, CustomUser, 
                        User_roles, Resources_roles, Resources_roles, Roles)
+
 from rest_framework.serializers import ModelSerializer, CharField, ValidationError, Serializer, IntegerField
 
 from ...mudules import create_response, menuResources
@@ -12,7 +13,6 @@ class UserSerializersSimple(ModelSerializer):
 #GENDER
 class GenderSerializers(ModelSerializer):
     name = CharField()
-
     class Meta:
         model = Genders
         exclude = ('createdAt', 'updateAt')
@@ -39,21 +39,83 @@ class PersonsSimpleSerializers(ModelSerializer):
     class Meta:
         model = Persons
         fields = ('name', 'surname', 'document_type',
-                  'phone', 'status', 'date_of_birth')
-        
+                  'phone', 'status', 'date_of_birth')     
+      
+#RESOURCES
+class ResourcesSerializers(ModelSerializer):
+    class Meta:
+        model = Resources
+        exclude = ('roles',)     
+
+#class ResourcesRolesSerializers(Serializer):
+#    rolesId = IntegerField()
+#    resources = ResourcesSerializers(many=True)
+#
+#    def create(self, validated_data):
+#        try:
+#            resources = []
+#            list_resources_roles = []
+#
+#            id_last_resources = 0
+#            last = Resources.objects.last()
+#            if last:
+#                id_last_resources = last.id + 1
+#
+#            menuResources(validated_data['resources'],
+#                          resources, Resources, id_last_resources)
+#            resources = Resources.objects.bulk_create(resources)
+#            roles = Roles.objects.get(pk=validated_data['rolesId'])
+#            list_resources_roles = [Resources_roles(
+#                rolesId=roles, resourcesId=r) for r in resources]
+#            Resources_roles.objects.bulk_create(list_resources_roles)
+#            return None
+#        except Exception as e:
+#            raise e
+#################################################################################
+
+class ResourcesRolesSerializers(Serializer):
+    rolesId = IntegerField()
+    resources = ResourcesSerializers(many=True)
+
+    def create(self, validated_data):
+        try:
+            resources = []
+            list_resources_roles = []
+
+            id_last_resources = 0
+            last = Resources.objects.last()
+            if last:
+                id_last_resources = last.id + 1
+
+            menuResources(validated_data['resources'],
+                          resources, Resources, id_last_resources)
+            resources = Resources.objects.bulk_create(resources)
+            roles = Roles.objects.get(pk=validated_data['rolesId'])
+            list_resources_roles = [Resources_roles(
+                rolesId=roles, resourcesId=r) for r in resources]
+            Resources_roles.objects.bulk_create(list_resources_roles)
+
+            # Llamada a la función allowed_resources
+            user_id_list = self.context.get('user_id_list', [])
+            allowed_resource_ids = allowed_resources(user_id_list)
+
+            # Filtrar los recursos permitidos para el usuario
+            allowed_resources = Resources.objects.filter(id__in=allowed_resource_ids)
+
+            # Serializar y retornar los recursos permitidos
+            serializer = ResourcesSerializers(allowed_resources, many=True)
+            return serializer.data
+
+        except Exception as e:
+            raise e
+
+#################################################################################
 #ROLES
 class RolesSerializers(ModelSerializer):
     class Meta:
         model = Roles
         fields = ('id', 'name')
-        
-#RESOURCES
-class ResourcesSerializers(ModelSerializer):
-    class Meta:
-        model = Resources_roles
-        fields = '__al__'
-        
-#ROLES
+              
 class RolesSimpleSerializers(ModelSerializer):
     resources = ResourcesSerializers(many=True)
 
@@ -78,38 +140,4 @@ class RolesUserSerializers(ModelSerializer):
             response, code = create_response(
                 404, '', 'Duplicate Key User - Rol')
             raise ValidationError(response, code=code)
-        
-#RESOURCES
-class ResourcesSerializers(ModelSerializer):
-    class Meta:
-        model = Resources
-        exclude = ('roles',)
-
-class ResourcesRolesSerializers(Serializer):
-    rolesId = IntegerField()
-    resources = ResourcesSerializers(many=True)
-
-    def create(self, validated_data):
-        try:
-            resources = []
-            list_resources_roles = []
-
-            id_last_resources = 0
-            last = Resources.objects.last()
-            if last:
-                id_last_resources = last.id + 1
-
-            menuResources(validated_data['resources'],
-                          resources, Resources, id_last_resources)
-            
-            resources = Resources.objects.bulk_create(resources)
-
-            roles = Roles.objects.get(pk=validated_data['rolesId'])
-
-            list_resources_roles = [Resources_roles(
-                rolesId=roles, resourcesId=r) for r in resources]
-
-            Resources_roles.objects.bulk_create(list_resources_roles)
-            return None
-        except Exception as e:
-            raise e
+  

@@ -16,7 +16,7 @@ from .models import CustomUser
 from .mudules import create_response
 
 from authenticacion.api.serializer.auth_serializer import LoginSerializers, RegisterSerializers
-from authenticacion.api.serializer.serializers import ResourcesSerializers
+from authenticacion.api.serializer.serializers import ResourcesSerializers, ResourcesRolesSerializers
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from helps.flatList import flatList
 
@@ -152,23 +152,6 @@ class UserChangePasswordView(UpdateAPIView):
                 status.HTTP_400_BAD_REQUEST, 'Not Found', e.args)
             return Response(response, status=code)
 
-
-#class LoginView(APIView):
-#    def post(self, request):
-#        # Recuperamos las credenciales y autenticamos al usuario
-#        email = request.data.get('email', None)
-#        password = request.data.get('password', None)
-#        user = authenticate(email=email, password=password)
-#
-#        # Si es correcto añadimos a la request la información de sesión
-#        if user:
-#            login(request, user)
-#            return Response(UserSerializer(user).data,status=status.HTTP_200_OK)
-#
-#        # Si no es correcto devolvemos un error en la petición
-#        return Response(
-#            status=status.HTTP_404_NOT_FOUND)
-
 class AuthLogin(APIView):
 
     def get_tokens_for_user(self, user):
@@ -199,7 +182,7 @@ class AuthLogin(APIView):
         resources = flatList([e.resources.prefetch_related(
             'resources') for e in serializers.validated_data.roles.all()])
     
-        menu = ResourcesSerializers(set(resources), many=True)
+        menu = ResourcesRolesSerializers(set(resources), many=True)
 
         request.session['refresh-token'] = token['refresh']
         response, code = create_response(
