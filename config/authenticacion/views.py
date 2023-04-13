@@ -23,7 +23,6 @@ from helps.flatList import flatList
 from django.http import JsonResponse
 import bcrypt, logging
 
-
 class UsersViewPublic(RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
@@ -182,7 +181,7 @@ class AuthLogin(APIView):
         resources = flatList([e.resources.prefetch_related(
             'resources') for e in serializers.validated_data.roles.all()])
     
-        menu = ResourcesRolesSerializers(set(resources), many=True)
+        menu = ResourcesSerializers(set(resources), many=True)
 
         request.session['refresh-token'] = token['refresh']
         response, code = create_response(

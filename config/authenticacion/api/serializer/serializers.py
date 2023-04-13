@@ -47,32 +47,6 @@ class ResourcesSerializers(ModelSerializer):
         model = Resources
         exclude = ('roles',)     
 
-#class ResourcesRolesSerializers(Serializer):
-#    rolesId = IntegerField()
-#    resources = ResourcesSerializers(many=True)
-#
-#    def create(self, validated_data):
-#        try:
-#            resources = []
-#            list_resources_roles = []
-#
-#            id_last_resources = 0
-#            last = Resources.objects.last()
-#            if last:
-#                id_last_resources = last.id + 1
-#
-#            menuResources(validated_data['resources'],
-#                          resources, Resources, id_last_resources)
-#            resources = Resources.objects.bulk_create(resources)
-#            roles = Roles.objects.get(pk=validated_data['rolesId'])
-#            list_resources_roles = [Resources_roles(
-#                rolesId=roles, resourcesId=r) for r in resources]
-#            Resources_roles.objects.bulk_create(list_resources_roles)
-#            return None
-#        except Exception as e:
-#            raise e
-#################################################################################
-
 class ResourcesRolesSerializers(Serializer):
     rolesId = IntegerField()
     resources = ResourcesSerializers(many=True)
@@ -94,22 +68,10 @@ class ResourcesRolesSerializers(Serializer):
             list_resources_roles = [Resources_roles(
                 rolesId=roles, resourcesId=r) for r in resources]
             Resources_roles.objects.bulk_create(list_resources_roles)
-
-            # Llamada a la función allowed_resources
-            user_id_list = self.context.get('user_id_list', [])
-            allowed_resource_ids = allowed_resources(user_id_list)
-
-            # Filtrar los recursos permitidos para el usuario
-            allowed_resources = Resources.objects.filter(id__in=allowed_resource_ids)
-
-            # Serializar y retornar los recursos permitidos
-            serializer = ResourcesSerializers(allowed_resources, many=True)
-            return serializer.data
-
+            return None
         except Exception as e:
             raise e
 
-#################################################################################
 #ROLES
 class RolesSerializers(ModelSerializer):
     class Meta:

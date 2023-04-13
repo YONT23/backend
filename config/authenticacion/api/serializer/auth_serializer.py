@@ -30,11 +30,12 @@ class RegisterSerializers(serializers.ModelSerializer):
         user = CustomUser.objects.create(**validated_data)
         #Persons.objects.create(**person, user=user)
         return user
-
-
+    
 class LoginSerializers(serializers.ModelSerializer):
     username = serializers.CharField(label='Email/username')
-    password = serializers.CharField()
+    password = serializers.CharField(
+        min_length=8, error_messages={
+            'min_length': 'La contraseña debe tener al menos 8 caracteres.'})
     roles = RolesSimpleSerializers(many=True, required=False)
 
     class Meta:
@@ -45,4 +46,6 @@ class LoginSerializers(serializers.ModelSerializer):
         user = authenticate(**attrs)
         if user and user.is_active:
             return user
-        raise serializers.ValidationError('Incorrect Credentials Passed.')
+        raise serializers.ValidationError(
+            {'detail': 'Las credenciales ingresadas son incorrectas.'})
+

@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     
     'authenticacion',
     'apps.publication.apps.PublicationConfig',
+    'apps.pqrs.apps.PqrsConfig',
 ]
 
 MIDDLEWARE = [
