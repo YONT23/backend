@@ -30,9 +30,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Api routes
-    path('api/', include('authenticacion.urls')),
+    path('api/', include('apps.authenticacion.urls')),
     path('api/', include(router.urls)),
-    path('', include('authenticacion.api.urls')),
+    path('', include('apps.authenticacion.api.urls')),
     path('pqrs/', include('apps.pqrs.api.urls')),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

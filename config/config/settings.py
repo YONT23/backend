@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     "whitenoise.runserver_nostatic",
     
-    'authenticacion',
+    'apps.authenticacion.apps.AuthenticacionConfig',
     'apps.publication.apps.PublicationConfig',
     'apps.pqrs.apps.PqrsConfig',
 ]

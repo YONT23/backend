@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from authenticacion.models import CustomUser
+from apps.authenticacion.models import CustomUser
 
 CustomUser = get_user_model()
 

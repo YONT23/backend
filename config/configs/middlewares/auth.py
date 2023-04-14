@@ -15,7 +15,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, AuthenticationFail
 
 from helps.create_response import create_response
 
-from authenticacion.models import CustomUser
+from apps.authenticacion.models import CustomUser
 
 env = environ.Env(
     DEBUG=(bool, False)
