@@ -16,7 +16,6 @@ class PqrsView(APIView):
         response ,code = create_response(status.HTTP_200_OK,"sucess",{"results":data.data})
         return Response(response,code)
 
-
 class SavePqrsView(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -66,7 +65,6 @@ class UpdatePqrsView(APIView):
             return seccionId
         except Pqrs.DoesNotExist:
             return None
-
 
     def put(self, request, *args, **kwargs):
 

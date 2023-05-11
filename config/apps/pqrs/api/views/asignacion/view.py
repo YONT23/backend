@@ -15,14 +15,13 @@ class AsignacionView(APIView):
         response ,code = create_response(status.HTTP_200_OK,"sucess",{"results":data.data})
         return Response(response,code)
 
-
 class SaveAsignacionView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = AsignacionSerializers(data=request.data)
 
         if data.is_valid():
-            data.save(funcionarioId=request.data["funcionarioId"],pqrs=request.data["pqrs"],userCreate=request.user)
+            data.save(revistaId=request.data["revistaId"],pqrs=request.data["pqrs"],userCreate=request.user)
             response,code=create_response(status.HTTP_200_OK,"Success","Sucess")
             return Response(response,code)
 
@@ -79,7 +78,7 @@ class UpdateAsignacionView(APIView):
         if instance.is_valid():
 
                try:
-                    instance.save(funcionarioId=request.data["funcionarioId"],userUpdate=request.user)
+                    instance.save(revistaId=request.data["revistaId"],userUpdate=request.user)
                     response, code = create_response(status.HTTP_200_OK,"Success","Success")
                     return Response(response,code)
                except BaseException as e:

@@ -48,7 +48,7 @@ class Docentes(BaseModel):
     inves = models.ForeignKey(Investigador,on_delete=models.CASCADE)
     univ = models.ForeignKey(Universidad,on_delete=models.CASCADE)
     
-class ALumnos(BaseModel):
+class Alumnos(BaseModel):
     inves = models.ForeignKey(Investigador,on_delete=models.CASCADE)
     univ = models.ForeignKey(Universidad,on_delete=models.CASCADE)
     programa = models.CharField(max_length=256)

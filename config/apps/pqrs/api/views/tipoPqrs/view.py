@@ -15,7 +15,6 @@ class TipoPqrsView(APIView):
         response ,code = create_response(status.HTTP_200_OK,"sucess",{"results":data.data})
         return Response(response,code)
 
-
 class SaveTipoPqrsView(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -28,7 +27,6 @@ class SaveTipoPqrsView(APIView):
 
         response, code = create_response(status.HTTP_400_BAD_REQUEST,"Bad Request",data.errors)
         return Response(response,code)
-
 
 class DeleteTipoPqrsView(APIView):
     
@@ -53,7 +51,6 @@ class DeleteTipoPqrsView(APIView):
         except BaseException as e:
             response,code = create_response(status.HTTP_400_BAD_REQUEST,"Bad Request",e.args )
             return Response(response,code)
-
 
 class UpdatePqrsView(APIView):
 

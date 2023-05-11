@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'apps.authenticacion.apps.AuthenticacionConfig',
     'apps.publication.apps.PublicationConfig',
     'apps.pqrs.apps.PqrsConfig',
+    'apps.solicitudes.apps.SolicitudesConfig',
 ]
 
 MIDDLEWARE = [
